@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+<meta name="format-detection" content="telephone=no,email=no,date=no,address=no"/>
+<link rel="stylesheet" type="text/css" href="css/api.css"/>
+<title>Hello APP</title>
+</head>
+<body>
+<header style="background-color:#50C4E5;"></header>
+<script type="text/javascript" src="js/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.dom("header"); //获取 header 标签元素
+        var headerH = $api.fixStatusBar(header);
+        api.openFrame({
+            name : "webcode",
+            url : "https://qsth520.gitee.io/webjs/htmlcode/",
+            bgColor : "#ffffff",
+            bounces : false,
+			allowEdit : true,
+			scaleEnabled : false,
+            rect : { //推荐使用Margin布局，用于适配屏幕的动态变化
+                marginTop: headerH, //main页面距离win顶部的高度
+                marginBottom: "auto", //main页面距离win底部的高度
+                w: "auto" //main页面的宽度 自适应屏幕宽度
+            }
+        });
+    };
+</script>
+</body>
+</html>

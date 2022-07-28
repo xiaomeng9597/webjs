@@ -1,0 +1,66 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=yes"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Cache-control" content="no-cache"/>
+<meta http-equiv="Cache" content="no-cache"/>
+<meta name="referrer" content="never"/>
+<meta name="referrer" content="no-referrer"/>
+<link rel="stylesheet" type="text/css" href="css/api.css"/>
+<title>测试</title>
+<script type="text/javascript" charset="utf-8" src="js/api.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.min.js"></script>
+<header style="background-color:#50C4E5;"></header>
+</head>
+
+<style>
+body{
+  background-color:#ffffff;
+  height:100%;
+  }
+
+</style>
+
+<body>
+<script type="text/javascript">
+function cs() {
+api.toast({msg:"测试一下！",duration:2000,location:"middle"});
+}
+
+
+
+function hq() {
+
+
+/*
+api.clearCache(function() {
+    api.toast({
+        msg: '清除完成'
+    });
+});
+*/
+
+var txt = api.getPrefs({
+    sync: true,
+    key: "jsbody"
+});
+alert(txt);
+
+
+alert($api.getStorage("jsbody2"));
+}
+
+
+</script>
+
+<h1>
+ 此页面正在建设中，敬请期待....
+</h1>
+<br>
+<a href="javascript:cs();">测试</a>
+<a href='javascript:hq();'>获取数据</a>
+<a href="javascript:api.closeWin();">返回首页</a>
+
+</body>
+</html>

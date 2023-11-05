@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Text结果页面 - layui</title>
+  <link rel="stylesheet" href="./dist/css/layui.css">
+  <link rel="stylesheet" href="./dist/css/global.css">
+<script type="text/javascript" charset="utf-8" src="./js/api.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/jquery.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/clipboard.min.js"></script>
+
+<script type="text/javascript">
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+function typeof2(val) {
+	try {
+		return Object.prototype.toString.call(val).slice(8, -1).toLowerCase();
+	} catch (e) {
+		return typeof(val);
+	}
+};
+
+function jseval(str) {
+    var fn = Function;
+    return new fn("return " + str)();
+};
+
+function toString2(val) {
+    if (val) {
+        try {
+            return String(val);
+        } catch (e) {
+            return val;
+        }
+    } else {
+        return val;
+    }
+};
+
+function trim2(val) {
+	if (val == "" || val == null || val == undefined) {
+		return "";
+	} else {
+		try {
+			return toString2(val).replace(/(^\s*)|(\s*$)/g, "");
+		} catch (e) {
+			return val;
+		}
+	}
+};
+
+function getnull(val) {
+    if (val == "" || val == null || val == undefined) {
+        return "";
+    } else {
+        try {
+            return toString2(val);
+        } catch (e) {
+            return val;
+        }
+    }
+};
+
+function HTMLEncode(str) {
+    try {
+        var temp = document.createElement("div");
+        var str = document.createTextNode(str);
+        temp.appendChild(str);
+        return temp.innerHTML;
+    } catch (e) {
+        return str;
+    }
+};
+
+jszy = function(str) {
+    var str = trim2(str);
+    var reg = /[\\\/\"\'\(\)\[\]\{\}\$\^\*\+\-\_\?\!\=\:\.\,\|\t\r\n]/g;
+    var reg_arr = {};
+    reg_arr["\\"] = '\\\\';
+    reg_arr["\/"] = '\\\/';
+    reg_arr['\"'] = '\\"';
+    reg_arr["\'"] = "\\'";
+    reg_arr["("] = "\\(";
+    reg_arr[")"] = "\\)";
+    reg_arr["["] = "\\[";
+    reg_arr["]"] = "\\]";
+    reg_arr["{"] = "\\{";
+    reg_arr["}"] = "\\}";
+    reg_arr["$"] = "\\$";
+    reg_arr["^"] = "\\^";
+    reg_arr["*"] = "\\*";
+    reg_arr["+"] = "\\+";
+    reg_arr["-"] = "\\-";
+    reg_arr["_"] = "\\_";
+    reg_arr["?"] = "\\?";
+    reg_arr["!"] = "\\!";
+    reg_arr["="] = "\\=";
+    reg_arr[":"] = "\\:";
+    reg_arr["."] = "\\.";
+    reg_arr[","] = "\\,";
+    reg_arr["|"] = "\\|";
+    reg_arr["\t"] = "\\t";
+    reg_arr["\r"] = "\\r";
+    reg_arr["\n"] = "\\n";
+    str = str.replace(reg, function(val) {
+        return reg_arr[val];
+    });
+    return str;
+};
+
+function jszy123(str) {
+    var str = trim2(str);
+    var str = str.replace(/\\/g, '\\\\');
+    var str = str.replace(/\//g, '\\\/');
+    var str = str.replace(/\"/g, '\\"');
+    var str = str.replace(/\'/g, "\\'");
+    var str = str.replace(/\(/g, "\\(");
+    var str = str.replace(/\)/g, "\\)");
+    var str = str.replace(/\[/g, "\\[");
+    var str = str.replace(/\]/g, "\\]");
+    var str = str.replace(/\{/g, "\\{");
+    var str = str.replace(/\}/g, "\\}");
+    var str = str.replace(/\$/g, "\\$");
+    var str = str.replace(/\^/g, "\\^");
+    var str = str.replace(/\*/g, "\\*");
+    var str = str.replace(/\+/g, "\\+");
+    var str = str.replace(/\-/g, "\\-");
+    var str = str.replace(/\_/g, "\\_");
+    var str = str.replace(/\?/g, "\\?");
+    var str = str.replace(/\!/g, "\\!");
+    var str = str.replace(/\=/g, "\\=");
+    var str = str.replace(/\:/g, "\\:");
+    var str = str.replace(/\./g, "\\.");
+    var str = str.replace(/\,/g, "\\,");
+    var str = str.replace(/\|/g, "\\|");
+    var str = str.replace(/\t/g, "\\t");
+    var str = str.replace(/\r/g, "\\r");
+    var str = str.replace(/\n/g, "\\n");
+    return str;
+};
+
+function Appclose() {
+    try {
+        api.closeWin();
+    } catch (e) {};
+};
+
+function Appcache() {
+    try {
+        api.clearCache(function() {
+            layer.msg("清空缓存成功", {
+                time: 2000
+            });
+        });
+    } catch (e) {};
+};
+
+function markword(dom, word, type = "") {
+    if (word == "" || word == null || word == undefined) {
+        alert("请输入需要高亮的关键词！");
+        return;
+    } else {
+        try {
+            domtypeof = typeof2(dom);
+            domlength = dom.length;
+            if ((dom && domtypeof == "htmlcollection") && domlength > 0) {
+                dombool = true;
+                domjshtml = "htmlcollection";
+            } else if ((dom && domtypeof == "nodelist") && domlength > 0) {
+                dombool = true;
+                domjshtml = "nodelist";
+            } else if (dom && domtypeof.substr(0, 4) == "html") {
+                dombool = true;
+                domjshtml = "html";
+            } else {
+                dombool = false;
+                domjshtml = null;
+            }
+        } catch (err) {
+            domtypeof = typeof2(dom);
+            domlength = dom.length;
+            dombool = false;
+            domjshtml = null;
+        };
+        if ((dom && dombool && domjshtml) && dombool === true) {
+            if (dom && domtypeof != "string") {
+                if ((domjshtml === "htmlcollection" || domjshtml === "nodelist") && domlength > 0) {
+                    for (var i = 0, len = dom.length; i < len; i++) {
+                        highlightWord(dom[i], word);
+                    }
+                } else {
+                    highlightWord(dom, word);
+                }
+            }
+        } else {
+            if (dom && domtypeof == "string") {
+                if (type == "" || type == null || type == undefined) {
+                    if (dom.substr(0, 1) == "#" || dom.substr(0, 1) == ".") {
+                        var node = document.querySelector(dom);
+                        highlightWord(node, word);
+                    } else {
+                        var node = document.getElementById(dom);
+                        highlightWord(node, word);
+                    }
+                } else {
+                    if (type && type.toLowerCase() == "queryselectorall") {
+                        var node = document.querySelectorAll(dom);
+                        if (typeof2(node) == "nodelist" && node.length > 0) {
+                            for (var i = 0, len = node.length; i < len; i++) {
+                                highlightWord(node[i], word);
+                            }
+                        }
+                    } else if (type && type.toLowerCase() == "queryselector") {
+                        var node = document.querySelector(dom);
+                        highlightWord(node, word);
+                    } else if (type && type.toLowerCase() == "getelementbyid") {
+                        var node = document.getElementById(dom);
+                        highlightWord(node, word);
+                    } else {
+                        if (dom.substr(0, 1) == "#" || dom.substr(0, 1) == ".") {
+                            var node = document.querySelector(dom);
+                            highlightWord(node, word);
+                        } else {
+                            var node = document.getElementById(dom);
+                            highlightWord(node, word);
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+function highlightWord(node, word = "") {
+    if (node && word) {
+        if (node.nodeType === 3) {
+            //text node
+            if ((node.nodeValue != "" || node.nodeValue != null || node.nodeValue != undefined) && (word != "" || word != null || word != undefined)) {
+                tempNodeVal = node.nodeValue.toLowerCase();
+                tempWordVal = word.toLowerCase();
+                if (tempNodeVal.indexOf(tempWordVal) != -1) {
+                    pn = node.parentNode;
+                    if (pn.className != "highlight") {
+                        //word has not already been highlighted!
+                        nv = node.nodeValue;
+                        ni = tempNodeVal.indexOf(tempWordVal);
+                        //Create a load of replacement nodes
+                        before = document.createTextNode(nv.substr(0, ni));
+                        after = document.createTextNode(nv.substr(ni + word.length));
+                        docWordVal = nv.substr(ni, word.length);
+                        hiwordtext = document.createTextNode(docWordVal);
+                        hiword = document.createElement("span");
+                        hiword.className = "highlight";
+                        hiword.appendChild(hiwordtext);
+                        pn.insertBefore(before, node);
+                        pn.insertBefore(hiword, node);
+                        pn.insertBefore(after, node);
+                        pn.removeChild(node);
+                    }
+                }
+            }
+        } else if ((node.nodeType === 1 && node.childNodes) && !/(script|style)/i.test(node.tagName)) {
+            //Iterate into this nodes childNodes
+            var i;
+            for (i = 0; i < node.childNodes.length; i++) {
+                highlightWord(node.childNodes[i], word);
+            }
+        }
+    }
+};
+
+function normalizeTextNode(node) {
+    if (!node) {
+        return;
+    }
+    if (node.nodeType === 3) {
+        while (node.nextSibling && node.nextSibling.nodeType === 3) {
+            node.nodeValue += node.nextSibling.nodeValue;
+            node.parentNode.removeChild(node.nextSibling);
+        }
+    } else {
+        normalizeTextNode(node.firstChild);
+    }
+    normalizeTextNode(node.nextSibling);
+}
+
+function unmarkword(callback) {
+    var element = document.querySelectorAll("span.highlight");
+    element.forEach(function(el) {
+        var parent = el.parentNode;
+        var docFrag = document.createDocumentFragment();
+        while (el.firstChild) {
+            docFrag.appendChild(el.removeChild(el.firstChild));
+        }
+        parent.replaceChild(docFrag, el);
+        parent.normalize();
+        //normalizeTextNode(parent);
+    });
+    try {
+        if (callback) {
+            callback();
+        }
+    } catch (err) {};
+    return true;
+};
+</script>
+
+<style type="text/css">
+.textarea {
+width:100%;
+height:450px;
+outline:none;
+position:relative;
+padding-left:5px;
+padding-right:5px;
+min-height:450px;
+max-height:450px;
+border-radius:4px;
+overflow:auto;
+font-size:13px;
+margin-bottom:0rem;
+border:1px solid #eeeeee;
+background:#F7FBFF;
+background-color:#F7FBFF;
+-webkit-box-sizing:border-box;
+-moz-box-sizing:border-box;
+box-sizing:border-box;
+word-wrap:break-word;
+-webkit-user-modify:read-write-plaintext-only;
+}
+
+.textarea:empty:before {
+ content:attr(placeholder);
+ color:darkgray;
+}
+
+.highlight {
+ background-color:#5FB878;
+ color:#ffffff;
+}
+ </style>
+
+</head>
+<body>
+
+<div class="layui-layout layui-layout-admin">
+<div class="header header-demo">
+  <div class="layui-fluid">
+    <a class="logo" href="javascript:;">
+      <img src="./dist/logo.png" alt="layui">
+    </a>
+    <div class="layui-form layui-hide-xs component" lay-filter="LAY-site-header-component"></div>
+    
+    <ul class="layui-nav" id="LAY_NAV_TOP">
+      <li class="layui-nav-item layui-this">
+        <a href="javascript:;">文档</a> 
+      </li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">示例</a>
+      </li>
+      
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <!--<span class="layui-badge-dot" style="left:0; right: auto; margin: -4px 0 0 5px;"></span>--> 
+          待定
+        </a>
+        <dl class="layui-nav-child layui-nav-child-c">
+          <dd class="layui-hide-sm layui-show-xs" lay-unselect>
+            <a href="javascript:;" target="_blank" rel="nofollow">问题反馈</a>
+            <hr>
+          </dd>
+          
+          <dd lay-unselect>
+            <a href="javascript:;" target="_blank" lay-unselect>独立组件</a>
+            </dd>
+          <dd lay-unselect>
+            <a href="javascript:;" target="_blank">扩展组件</a>
+            </dd>
+        </dl>
+      </li>
+      
+      <li class="layui-nav-item layui-hide-xs">
+        <a href="javascript:;" target="_blank" rel="nofollow">反馈</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+<div class="layui-container">
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+
+<ul class="layui-nav layui-nav-tree site-demo-nav">
+  <li class="layui-nav-item layui-nav-itemed">
+    <a class="javascript:;" href="javascript:;">侧边栏</a>
+    <dl class="layui-nav-child">
+      <dd class="layui-this">
+        <a href="javascript:Appclose();">返回首页</a>
+      </dd>
+      <dd class="">
+        <a href="javascript:Appcache();">清空缓存</a>
+      </dd>
+      <dd class="">
+        <a href="javascript:;">待定</a>
+      </dd>
+    </dl>
+  </li>
+  <li class="layui-nav-item" style="height: 30px; text-align: center"></li>
+</ul>
+
+    </div>
+  </div>
+
+
+
+  <div class="layui-tab layui-tab-brief" lay-filter="demoTitle">
+    <ul class="layui-tab-title site-demo-title">
+      <li class="layui-this">原始返回值</li>
+      <li>Cookie数据</li>
+    </ul>
+    
+   <div style="height:15px;"></div>
+    <div class="layui-body layui-tab-content site-demo site-demo-body">
+
+
+
+      <div class="layui-tab-item layui-show">
+    <div class="site-demo-editor">
+      <div class="site-demo-area">
+        <!--<textarea id="jsbody" placeholder="在此处输入代码" class="layui-textarea"></textarea>-->
+        <div class="textarea" contenteditable="true" placeholder="在此处输入代码" id="jsbody" jsbox="false"></div>
+      </div>
+      <div class="site-demo-btn">
+       <button type="button" class="layui-btn layui-btn-normal" id="copy">复制返回值</button>
+        <button type="button" class="layui-btn layui-btn-normal" id="buttonid">查找字符串</button>
+      </div>
+    </div>
+      </div>
+
+
+
+      <div class="layui-tab-item">
+    <div class="site-demo-editor">
+      <div class="site-demo-area">
+        <!--<textarea id="jscookie" placeholder="这里是Cookie数据" class="layui-textarea"></textarea>-->
+        <div class="textarea" contenteditable="true" placeholder="这里是Cookie数据" id="jscookie" jsbox="false"></div>
+      </div>
+      <div class="site-demo-btn">
+        <button type="button" class="layui-btn layui-btn-normal" id="copy2">复制Cookie数据</button>
+        <button type="button" class="layui-btn layui-btn-normal" id="buttonid2">查找字符串</button>
+      </div>
+    </div>
+      </div>
+
+
+
+    </div>
+  </div>
+
+
+
+  <div class="layui-btn-container">
+    <button class="layui-btn" id="home" test-active="test-form">返回首页</button>
+  </div>
+
+
+  <blockquote class="layui-elem-quote" style="margin-top: 30px;">
+    <div class="layui-text">
+      <ul>
+        <li>当前版本：<span>layui-v<span id="version"></span></span></li>
+        <li>layui 是一套开源的 Web UI（界面）组件库</li>
+      </ul>
+    </div>
+  </blockquote>
+</div>
+
+
+
+<div class="layui-footer footer footer-demo">
+    <p>
+      Copyright &copy; 2022 <a href="javascript:Appclose();">layui.com</a> MIT Licensed</p>
+    <p>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    window.global = {
+        pageType: "index",
+        preview: ""
+    };
+</script>
+
+	
+<div class="site-tree-mobile layui-hide">
+  <i class="layui-icon layui-icon-spread-left"></i>
+</div>
+<div class="site-mobile-shade"></div>
+
+
+
+<script src="./dist/layui2.js" charset="utf-8"></script>
+<script src="./dist/global.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+layui.use(function(){
+  var layer = layui.layer
+  ,form = layui.form
+  ,laypage = layui.laypage
+  ,element = layui.element
+  ,laydate = layui.laydate
+  ,util = layui.util;
+
+loading = layer.msg("数据加载中...", {
+   icon: 16,
+   time: 0,
+   shade: 0.01
+});
+
+
+  //输出版本号
+  lay('#version').html(layui.v);
+
+
+/*
+  //触发事件
+  util.event('test-active', {
+   'test-form': function(){
+   alert("测试一下");
+    }
+  });
+*/
+});
+</script>
+
+
+
+<script type="text/javascript">
+apiready = function() {
+    try {
+        $(function() {
+            data = api.getPrefs({
+                sync: true,
+                key: "jsbody"
+            });
+            var data = HTMLEncode(data);
+            if (data) {
+                $("#jsbody").html(data);
+            } else {
+                $("#jsbody").html("暂无数据");
+            }
+            getcookie = $api.getStorage("cookie");
+            if (getcookie) {
+                $("#jscookie").text(getcookie);
+            } else {
+                $("#jscookie").text("暂无数据");
+            }
+            $("#home").click(function() {
+                Appclose();
+            });
+            layer.close(loading);
+        });
+    } catch (e) {};
+}
+</script>
+
+
+
+<script type="text/javascript">
+$("#copy,#copy2").click(function() {
+
+    var copyid = $(this).attr("id");
+    if (copyid == "copy") {
+        var btnname = "#jsbody";
+        var type = 1;
+    } else if (copyid == "copy2") {
+        var btnname = "#jscookie";
+        var type = 0;
+    } else {
+        var btnname = "";
+        var type = 1;
+    }
+
+    if (btnname && trim2($(btnname).text()) != "") {
+        var clipboard = new ClipboardJS("#" + copyid, {
+            text: function() {
+                return $(btnname).text()
+            }
+        });
+
+        clipboard.on("success", function(e) {
+            if (type == 1) {
+                layer.msg("复制代码成功", {
+                    time: 2000
+                });
+            } else {
+                layer.msg("复制Cookie数据成功", {
+                    time: 2000
+                });
+            }
+            e.clearSelection();
+            clipboard.destroy();
+        });
+
+        clipboard.on("error", function(e) {
+            if (type == 1) {
+                layer.msg("复制代码失败", {
+                    time: 2000
+                });
+                clipboard.destroy();
+            } else {
+                layer.msg("复制Cookie数据失败", {
+                    time: 2000
+                });
+                clipboard.destroy();
+            }
+        });
+
+    } else {
+        layer.msg("暂无数据", {
+            time: 2000
+        });
+    }
+
+});
+
+
+$("#buttonid,#buttonid2").click(function() {
+
+    var copyid = $(this).attr("id");
+    if (copyid == "buttonid") {
+        var btnname = "#jsbody";
+    } else if (copyid == "buttonid2") {
+        var btnname = "#jscookie";
+    } else {
+        var btnname = "";
+    }
+
+    layer.prompt({
+        title: "请输入需要搜索的字符串，然后再搜索！",
+        formType: 2
+    }, function(value, index) {
+        layer.close(index);
+
+        if (btnname && value && trim2($(btnname).text()) != "") {
+
+            loading2 = layer.msg("正在搜索中...", {
+                icon: 16,
+                time: 0,
+                shade: 0.01
+            });
+
+            sleep(100).then(() => {
+
+
+                /*重置数据*/
+                var jsbox = trim2($(btnname).attr("jsbox"));
+                if (jsbox == true || jsbox == "true") {
+                    try {
+                        var textcode = $(btnname).text();
+                        $(btnname).text(textcode);
+                    } catch (e) {};
+                }
+                /*重置数据*/
+
+
+                try {
+
+                    var getval = HTMLEncode($(btnname).text());
+                    var value2 = HTMLEncode(value);
+
+                    var reg = jseval("/" + jszy(value2) + "/gi");
+                    if (getval && (getval.toLowerCase().indexOf(value2.toLowerCase()) != -1 || getval.search(reg) != -1)) {
+                        layer.close(loading2);
+                        layer.msg("已将查找到的字符串进行高亮处理！", {
+                            time: 2000
+                        });
+
+                        /*
+                        unmarkword(function() {
+                            markword(btnname, value, "querySelector");
+                        });
+                        */
+
+                        $(btnname).attr("jsbox", "true");
+                        markword(btnname, value, "querySelector");
+                    } else {
+                        layer.close(loading2);
+                        layer.msg("没有找到相关字符串", {
+                            time: 2000
+                        });
+                    }
+                } catch (e) {};
+
+            });
+
+
+        } else {
+            layer.msg("代码显示框内容为空", {
+                time: 2000
+            });
+        }
+
+    });
+});
+</script>
+</body>
+</html>

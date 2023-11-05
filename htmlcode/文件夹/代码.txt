@@ -1,0 +1,178 @@
+/**
+ * 字符串的全局替换
+ * @param oldText {string} 原始字符串
+ * @param searchValue {string} 需要替换的字符串
+ * @param replaceValue {string} 替换后的字符串
+ * @returns {string} 返回结果
+ */
+function replaceAll(oldText, searchValue, replaceValue) {
+    let result = oldText;
+    // 检查是否是正则表达式
+    // 如果是正则表达式，则获得匹配内容
+    let search;
+    if (searchValue) {
+        // 首先去掉空格
+        search = searchValue.match(/\S+/g)[0];
+        // 匹配以 / 符号开头 以 /img 形式结尾的内容
+        //search = search.search(/^\/[\s\S]*?\/[img]$/g);
+    } else {
+        search = -1;
+    }
+    // 为了方便直接创建一个数组用来存放需要替换的值
+    let searchArray = [];
+    if (search !== -1) {
+        let pattern = searchValue.slice(searchValue.indexOf("\/") + 1, searchValue.lastIndexOf("\/"));
+        let modifiers = searchValue.slice(searchValue.lastIndexOf("\/") + 1, searchValue.length);
+        // 防止正则写的有问题，或者只是写的像正则实际不是而导致的 nothing to repeat 报错。
+        try {
+            search = oldText.match(new RegExp(pattern, modifiers));
+        } catch (e) {
+            console.log(e);
+            // 报错则默认为是需要替换的文本
+            search = null;
+            searchArray.push(searchValue);
+        }
+        if (search !== null) {
+            // 匹配成功后去掉重复项
+            search.forEach(function (item1) {
+                // if(searchArray.includes(item1)){}
+                // IE 不支持 array.includes() 所以自己写一个循环吧
+                // 数组中有相同元素则为 true
+                let alreadyIn = false;
+                searchArray.forEach(function (item2) {
+                    if (item1 === item2) {
+                        alreadyIn = true;
+                    }
+                });
+                if (!alreadyIn) {
+                    searchArray.push(item1);
+                }
+            });
+        } else {
+            // 匹配失败也默认为是需要替换的文本
+            searchArray.push(searchValue);
+        }
+    } else {
+        // 不是正则表达式也需要添加进数组
+        searchArray.push(searchValue);
+    }
+    // 来循环吧，把 search 里的每个元素换一遍，当然首先里面要有元素
+    if (searchValue) {
+        let remaining = result;
+        searchArray.forEach(function (item) {
+            // 将上一次替换结束的字符串赋值给未扫描的字符串变量
+            remaining = result;
+            let array = [];
+            let start = remaining.indexOf(item);
+            console.log(start);
+            // 没有匹配项则返回源字符串
+            if (start === -1) {
+                result = remaining;
+            }
+            while (start !== -1) {
+                let end = start + item.length;
+                array.push(remaining.slice(0, start));
+                array.push(replaceValue);
+                remaining = remaining.slice(end, remaining.length);
+                start = remaining.indexOf(item);
+                result = array.join("") + remaining;
+            }
+        });
+    }
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+jszy = function(str) {
+    var reg = /[\\\/\"\'\(\)\[\]\{\}\$\^\*\+\-\_\?\!\=\:\.\,\|\t\r\n]/g;
+    var reg_arr = {};
+    reg_arr["\\"] = '\\\\';
+    reg_arr["\/"] = '\\\/';
+    reg_arr['\"'] = '\\"';
+    reg_arr["\'"] = "\\'";
+    reg_arr["("] = "\\(";
+    reg_arr[")"] = "\\)";
+    reg_arr["["] = "\\[";
+    reg_arr["]"] = "\\]";
+    reg_arr["{"] = "\\{";
+    reg_arr["}"] = "\\}";
+    reg_arr["$"] = "\\$";
+    reg_arr["^"] = "\\^";
+    reg_arr["*"] = "\\*";
+    reg_arr["+"] = "\\+";
+    reg_arr["-"] = "\\-";
+    reg_arr["_"] = "\\_";
+    reg_arr["?"] = "\\?";
+    reg_arr["!"] = "\\!";
+    reg_arr["="] = "\\=";
+    reg_arr[":"] = "\\:";
+    reg_arr["."] = "\\.";
+    reg_arr[","] = "\\,";
+    reg_arr["|"] = "\\|";
+    reg_arr["\t"] = "\\t";
+    reg_arr["\r"] = "\\r";
+    reg_arr["\n"] = "\\n";
+    str = str.replace(reg, function(val) {
+        return reg_arr[val];
+    });
+    return str;
+};
+
+
+
+function jszy123(str) {
+    var str = str.replace(/\\/g, '\\\\');
+    var str = str.replace(/\//g, '\\\/');
+    var str = str.replace(/\"/g, '\\"');
+    var str = str.replace(/\'/g, "\\'");
+    var str = str.replace(/\(/g, "\\(");
+    var str = str.replace(/\)/g, "\\)");
+    var str = str.replace(/\[/g, "\\[");
+    var str = str.replace(/\]/g, "\\]");
+    var str = str.replace(/\{/g, "\\{");
+    var str = str.replace(/\}/g, "\\}");
+    var str = str.replace(/\$/g, "\\$");
+    var str = str.replace(/\^/g, "\\^");
+    var str = str.replace(/\*/g, "\\*");
+    var str = str.replace(/\+/g, "\\+");
+    var str = str.replace(/\-/g, "\\-");
+    var str = str.replace(/\_/g, "\\_");
+    var str = str.replace(/\?/g, "\\?");
+    var str = str.replace(/\!/g, "\\!");
+    var str = str.replace(/\=/g, "\\=");
+    var str = str.replace(/\:/g, "\\:");
+    var str = str.replace(/\./g, "\\.");
+    var str = str.replace(/\,/g, "\\,");
+    var str = str.replace(/\|/g, "\\|");
+    var str = str.replace(/\t/g, "\\t");
+    var str = str.replace(/\r/g, "\\r");
+    var str = str.replace(/\n/g, "\\n");
+    return str;
+};
+
+
+
+function HTMLEncode(str) {
+    try {
+        var reg = /[\<\>\"\']/gi;
+        var reg_arr = {};
+        reg_arr["<"] = "&lt;";
+        reg_arr[">"] = "&gt;";
+        reg_arr['\"'] = "&quot;";
+        reg_arr["\'"] = "&#x27;";
+        str = str.replace(reg, function(val) {
+            return reg_arr[val];
+        });
+        return str;
+    } catch (e) {
+        return str;
+    }
+};
